@@ -3,13 +3,14 @@ import re
 import argparse
 
 
-def detect_silence(input_file, silence_log):
+def detect_silence(input_file, silence_log, silence_level, silence_duration):
+    silence_params = f"n=-{silence_level}dB:d={silence_duration}"
     ffmpeg_command = [
         "ffmpeg",
         "-i",
         input_file,
         "-af",
-        "silencedetect=n=-20dB:d=1",
+        f"silencedetect={silence_params}",
         "-f",
         "null",
         "-",
@@ -52,7 +53,19 @@ def get_video_duration(input_file):
     return float(result.stdout)
 
 
-def generate_ffmpeg_command(input_file, output_file, silence_intervals, video_duration):
+def generate_ffmpeg_command(
+    input_file,
+    output_file,
+    silence_intervals,
+    video_duration,
+    video_codec,
+    video_bitrate,
+    video_preset,
+    video_profile,
+    audio_codec,
+    audio_bitrate,
+    audio_sample_rate,
+):
     if silence_intervals:
         segments = []
         current_position = 0
@@ -84,19 +97,19 @@ def generate_ffmpeg_command(input_file, output_file, silence_intervals, video_du
         "-map",
         "[a]",
         "-c:v",
-        "libx264",
+        video_codec,
         "-b:v",
-        "19681k",
+        video_bitrate,
         "-preset",
-        "medium",
+        video_preset,
         "-profile:v",
-        "high",  # Match video encoding settings
+        video_profile,  # Video encoding settings
         "-c:a",
-        "aac",
+        audio_codec,
         "-b:a",
-        "110k",
+        audio_bitrate,
         "-ar",
-        "48000",  # Match audio encoding settings
+        audio_sample_rate,  # Audio encoding settings
         output_file,
     ]
     return ffmpeg_command
@@ -107,16 +120,78 @@ def main():
     parser = argparse.ArgumentParser(description="Remove silent moments from a video.")
     parser.add_argument("-i", "--input", required=True, help="The input video file.")
     parser.add_argument("-o", "--output", required=True, help="The output video file.")
+    parser.add_argument(
+        "-vc",
+        "--video_codec",
+        default="libx264",
+        help="The video codec (default: libx264).",
+    )
+    parser.add_argument(
+        "-vb",
+        "--video_bitrate",
+        default="19681k",
+        help="The video bitrate (default: 19681k).",
+    )
+    parser.add_argument(
+        "-vp",
+        "--video_preset",
+        default="medium",
+        help="The video preset (default: medium).",
+    )
+    parser.add_argument(
+        "-vpr",
+        "--video_profile",
+        default="high",
+        help="The video profile (default: high).",
+    )
+    parser.add_argument(
+        "-ac", "--audio_codec", default="aac", help="The audio codec (default: aac)."
+    )
+    parser.add_argument(
+        "-ab",
+        "--audio_bitrate",
+        default="110k",
+        help="The audio bitrate (default: 110k).",
+    )
+    parser.add_argument(
+        "-asr",
+        "--audio_sample_rate",
+        default="48000",
+        help="The audio sample rate (default: 48000).",
+    )
+    parser.add_argument(
+        "-sl",
+        "--silence_level",
+        type=int,
+        default=50,
+        help="The silence detection level in dB (default: 50).",
+    )
+    parser.add_argument(
+        "-sd",
+        "--silence_duration",
+        type=float,
+        default=2,
+        help="The silence detection duration in seconds (default: 2).",
+    )
     args = parser.parse_args()
 
     # Assign arguments to variables
     input_file = args.input
     output_file = args.output
+    video_codec = args.video_codec
+    video_bitrate = args.video_bitrate
+    video_preset = args.video_preset
+    video_profile = args.video_profile
+    audio_codec = args.audio_codec
+    audio_bitrate = args.audio_bitrate
+    audio_sample_rate = args.audio_sample_rate
+    silence_level = args.silence_level
+    silence_duration = args.silence_duration
 
     silence_log = "silence_log.txt"
 
     # Step 1: Detect silence and generate log
-    detect_silence(input_file, silence_log)
+    detect_silence(input_file, silence_log, silence_level, silence_duration)
 
     # Step 2: Parse the silence log to get silence intervals
     silence_intervals = parse_silence_log(silence_log)
@@ -126,7 +201,17 @@ def main():
 
     # Step 4: Generate FFmpeg command to trim silence
     ffmpeg_command = generate_ffmpeg_command(
-        input_file, output_file, silence_intervals, video_duration
+        input_file,
+        output_file,
+        silence_intervals,
+        video_duration,
+        video_codec,
+        video_bitrate,
+        video_preset,
+        video_profile,
+        audio_codec,
+        audio_bitrate,
+        audio_sample_rate,
     )
 
     # Step 5: Execute the FFmpeg command
