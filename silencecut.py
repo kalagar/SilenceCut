@@ -127,10 +127,7 @@ def main():
         help="The video codec (default: libx264).",
     )
     parser.add_argument(
-        "-vb",
-        "--video_bitrate",
-        default="8m",
-        help="The video bitrate (default: 8m).",
+        "-vb", "--video_bitrate", default="8M", help="The video bitrate (default: 8M)."
     )
     parser.add_argument(
         "-vp",
