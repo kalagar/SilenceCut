@@ -29,7 +29,9 @@ sudo apt install python3 python3-pip ffmpeg
 ### Windows
 
 1. Install [Python 3](https://www.python.org/downloads/).
-2. Install [FFmpeg](https://ffmpeg.org/download.html) and add it to your system PATH. use this [guide](https://www.wikihow.com/Install-FFmpeg-on-Windows).
+2. Install [FFmpeg](https://ffmpeg.org/download.html).
+   * You may download it directly from [here](https://www.gyan.dev/ffmpeg/builds/#release-builds).
+   * Then add it to your system PATH with this [guide](https://www.wikihow.com/Install-FFmpeg-on-Windows).
 
 ### Install Python dependencies
 
