@@ -129,8 +129,8 @@ def main():
     parser.add_argument(
         "-vb",
         "--video_bitrate",
-        default="19681k",
-        help="The video bitrate (default: 19681k).",
+        default="8m",
+        help="The video bitrate (default: 8m).",
     )
     parser.add_argument(
         "-vp",
@@ -150,8 +150,8 @@ def main():
     parser.add_argument(
         "-ab",
         "--audio_bitrate",
-        default="110k",
-        help="The audio bitrate (default: 110k).",
+        default="128k",
+        help="The audio bitrate (default: 128k).",
     )
     parser.add_argument(
         "-asr",
@@ -163,15 +163,15 @@ def main():
         "-sl",
         "--silence_level",
         type=int,
-        default=50,
-        help="The silence detection level in dB (default: 50).",
+        default=30,
+        help="The silence detection level in dB (default: 30).",
     )
     parser.add_argument(
         "-sd",
         "--silence_duration",
         type=float,
-        default=2,
-        help="The silence detection duration in seconds (default: 2).",
+        default=0.5,
+        help="The silence detection duration in seconds (default: 0.5).",
     )
     args = parser.parse_args()
 
